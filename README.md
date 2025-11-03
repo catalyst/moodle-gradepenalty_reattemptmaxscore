@@ -50,12 +50,15 @@ Supported Activities: Assignment
 
 ## gradepenalty_reattemptmaxscore
 ✅ Create PHPUnit tests for automated validation.
+
 🐛 Debug why the plugin does not enable correctly when combined with other grading methods (e.g., rubrics) if Moodle debugging mode is turned on.
 
 ## mod_assign
 🧪 Add assignment-specific tests for gradepenalty_reattemptmaxscore.
+
 ⚙️ Implement functionality to allow multiple penalty plugins to coexist, enabling different assignments to use different penalty types.
 Example:
+
 Assignment 1 → uses Due Date Penalty
 Assignment 2 → uses Reattempt Max Score Penalty
 
