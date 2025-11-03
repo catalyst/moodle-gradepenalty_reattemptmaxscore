@@ -1,0 +1,183 @@
+From 197bf3b3c7f66e1c8f21ecab664d60457b4c7b80 Mon Sep 17 00:00:00 2001
+From: Sumaiya Javed <sumaiya.javed@catalyst.net.nz>
+Date: Fri, 24 Oct 2025 13:46:27 +1300
+Subject: [PATCH] core_grade penalty: Add support to enable different types of
+ penalty plugins - Add function to return enabled penalty type - Change
+ variables and functions names and description gradepenalty_duedate: Change
+ functions and variables names and description
+
+---
+ grade/classes/penalty_container.php           | 31 +++++++-------
+ grade/classes/penalty_manager.php             | 40 ++++++++++++++-----
+ .../duedate/classes/penalty_calculator.php    |  2 +-
+ 3 files changed, 47 insertions(+), 26 deletions(-)
+
+diff --git a/grade/classes/penalty_container.php b/grade/classes/penalty_container.php
+index c545cd2c..13b4579a 100644
+--- a/grade/classes/penalty_container.php
++++ b/grade/classes/penalty_container.php
+@@ -36,8 +36,8 @@ final class penalty_container {
+      *
+      * @param grade_item $gradeitem The grade item object
+      * @param grade_grade $gradegrade The grade object
+-     * @param int $submissiondate The date and time the submission was made
+-     * @param int $duedate The date and time the activity is due
++     * @param int $initialvalue The date and time the submission was made
++     * @param int $finalvalue The date and time the activity is due
+      */
+     public function __construct(
+         /** @var grade_item $gradeitem The grade item object*/
+@@ -46,11 +46,12 @@ final class penalty_container {
+         /** @var grade_grade $gradegrade The grade object */
+         private readonly grade_grade $gradegrade,
+ 
+-        /** @var int $submissiondate The date and time the submission was made */
+-        private readonly int $submissiondate,
++        /** @var int $initialvalue The date and time the submission was made */
++        private readonly int $initialvalue,
++
++        /** @var int $finalvalue The date and time the activity is due */
++        private readonly int $finalvalue,
+ 
+-        /** @var int $duedate The date and time the activity is due */
+-        private readonly int $duedate,
+     ) {
+     }
+ 
+@@ -64,21 +65,23 @@ final class penalty_container {
+     }
+ 
+     /**
+-     * Get the submission date.
++     * Get the intial value submitted by the activity
++     * For e.g. mod_assign sends the submission date for gradepenalty_duedate
+      *
+-     * @return int The date and time the submission was made
++     * @return int The intial value
+      */
+-    public function get_submission_date(): int {
+-        return $this->submissiondate;
++    public function get_initial_value(): int {
++        return $this->initialvalue;
+     }
+ 
+     /**
+-     * Get the due date.
++     * Get the final value submitted by the activity
++     * For e.g. mod_assign sends the duedate for gradepenalty_duedate
+      *
+-     * @return int The date and time the activity is due
++     * @return int The final value
+      */
+-    public function get_due_date(): int {
+-        return $this->duedate;
++    public function get_final_value(): int {
++        return $this->finalvalue;
+     }
+ 
+     /**
+diff --git a/grade/classes/penalty_manager.php b/grade/classes/penalty_manager.php
+index c4c7fb90..5a4ba4b8 100644
+--- a/grade/classes/penalty_manager.php
++++ b/grade/classes/penalty_manager.php
+@@ -61,6 +61,23 @@ class penalty_manager {
+         return array_filter(explode(',', get_config('core', 'gradepenalty_enabledmodules')));
+     }
+ 
++    /**
++     * Get list of enabled penalty plugins.
++     *
++     * @return array List of enabled penalty plugins.
++     */
++    public static function get_enabled_penality_plugins(): array {
++        $plugins = [];
++        // Iterate through all the penalty plugins to calculate the total penalty.
++        foreach (core_plugin_manager::instance()->get_plugins_of_type('gradepenalty') as $pluginname => $plugin) {
++            if (gradepenalty::is_plugin_enabled($pluginname)) {
++                $plugins[] = $pluginname;
++
++            }
++        }
++        return $plugins;
++    }
++
+     /**
+      * Enable the grade penalty feature for a module.
+      *
+@@ -173,21 +190,21 @@ class penalty_manager {
+      *
+      * @param int $userid The user ID
+      * @param grade_item $gradeitem grade item
+-     * @param int $submissiondate submission date
+-     * @param int $duedate due date
++     * @param int $initialvalue submission date
++     * @param int $finalvalue due date
+      * @param bool $previewonly do not update the grade if true, only return the penalty
+      * @return penalty_container Information about the applied penalty.
+      */
+     public static function apply_grade_penalty_to_user(
+         int $userid,
+         grade_item $gradeitem,
+-        int $submissiondate,
+-        int $duedate,
++        int $initialvalue,
++        int $finalvalue,
+         bool $previewonly = false
+     ): penalty_container {
+ 
+         try {
+-            $container = self::apply_penalty($userid, $gradeitem, $submissiondate, $duedate, $previewonly);
++            $container = self::apply_penalty($userid, $gradeitem, $initialvalue, $finalvalue, $previewonly);
+         } catch (\core\exception\moodle_exception $e) {
+             debugging($e->getMessage(), DEBUG_DEVELOPER);
+         }
+@@ -195,26 +212,27 @@ class penalty_manager {
+     }
+ 
+     /**
+-     * Fetch the penalty for a user based on the submission date and due date and deduct marks from the grade item accordingly.
++     * Fetch the penalty for a user based on the initial value and final value submitted by a module
++     * For e.g. gradepenalty_duedate sends the submission date and due date and deduct marks from the grade item accordingly.
+      *
+      * @param int $userid The user ID.
+      * @param grade_item $gradeitem The grade item.
+-     * @param int $submissiondate The date and time of the user submission.
+-     * @param int $duedate The date and time the submission is due.
++     * @param int $initialvalue like the date and time of the user submission.
++     * @param int $finalvalue like the date and time the submission is due.
+      * @param bool $previewonly If true, the grade will not be updated.
+      * @return penalty_container The penalty container containing information about the applied penalty.
+      */
+     private static function apply_penalty(
+         int $userid,
+         grade_item $gradeitem,
+-        int $submissiondate,
+-        int $duedate,
++        int $initialvalue,
++        int $finalvalue,
+         bool $previewonly = false
+     ): penalty_container {
+ 
+         // Get the grade and create a penalty container.
+         $grade = $gradeitem->get_grade($userid);
+-        $container = new penalty_container($gradeitem, $grade, $submissiondate, $duedate);
++        $container = new penalty_container($gradeitem, $grade, $initialvalue, $finalvalue);
+ 
+         // Do not apply penalties if the module is disabled.
+         if (!self::is_penalty_enabled_for_module($gradeitem->itemmodule)) {
+diff --git a/grade/penalty/duedate/classes/penalty_calculator.php b/grade/penalty/duedate/classes/penalty_calculator.php
+index cd944616..c8ccd975 100644
+--- a/grade/penalty/duedate/classes/penalty_calculator.php
++++ b/grade/penalty/duedate/classes/penalty_calculator.php
+@@ -40,7 +40,7 @@ class penalty_calculator extends \core_grades\penalty_calculator {
+         $gradeitem = $container->get_grade_item();
+         $modinfo = get_fast_modinfo($gradeitem->courseid);
+         $cm = $modinfo->instances[$gradeitem->itemmodule][$gradeitem->iteminstance];
+-        $deductedpercentage = self::get_penalty_from_rules($cm, $container->get_submission_date(), $container->get_due_date());
++        $deductedpercentage = self::get_penalty_from_rules($cm, $container->get_initial_value(), $container->get_final_value());
+         $deductedgrade = $container->get_max_grade() * $deductedpercentage / 100;
+         $container->aggregate_penalty($deductedgrade);
+     }
+-- 
+2.34.1
+
