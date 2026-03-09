@@ -119,16 +119,6 @@ class penalty_rule extends persistent {
         foreach ($rules as $rule) {
             $rule->delete();
         }
-
-        // Check if it is system context, create a default rule.
-        if ($contextid == context_system::instance()->id) {
-            $rule = new penalty_rule();
-            $rule->set('contextid', $contextid);
-            $rule->set('reattemptby', 1);
-            $rule->set('penalty', 0);
-            $rule->set('sortorder', 0);
-            $rule->save();
-        }
     }
 
     /**

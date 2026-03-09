@@ -30,8 +30,8 @@ import Templates from 'core/templates';
  */
 class PenaltyRule {
     constructor(
-        reattemptby = 0,
-        penalty = 0,
+        reattemptby = 1,
+        penalty = 10,
     ) {
         this.reattemptby = reattemptby;
         this.penalty = penalty;
@@ -175,7 +175,7 @@ const buildFormParams = () => {
 
     for (let i = 0; i < groupCount; i++) {
         penaltyRules.push(new PenaltyRule(
-            formData.get(`reattemptby[${i}][number]`) * formData.get(`reattemptby[${i}][timeunit]`),
+            formData.get(`reattemptby[${i}]`),
             formData.get(`penalty[${i}]`)
         ));
     }

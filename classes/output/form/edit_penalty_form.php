@@ -99,7 +99,7 @@ class edit_penalty_form extends moodleform {
         // Final rule input.
         $mform->addElement('text', 'finalpenaltyrule', get_string('finalpenaltyrule', 'gradepenalty_reattemptmaxscore'), ['size' => 3]);
         $mform->setType('finalpenaltyrule', PARAM_FLOAT);
-        $mform->setDefault('finalpenaltyrule', 0);
+        $mform->setDefault('finalpenaltyrule', 10);
         $mform->addHelpButton('finalpenaltyrule', 'finalpenaltyrule', 'gradepenalty_reattemptmaxscore');
 
         // Set data.
@@ -171,7 +171,7 @@ class edit_penalty_form extends moodleform {
                 } else {
                     // Must be greater than the previous penalty.
                     $errormessage = get_string('error_penalty_abovevalue', 'gradepenalty_reattemptmaxscore',
-                        format_float($penaltylowerbound));
+                        format_float($penaltyupperbound));
                 }
 
                 if (isset($errors[$rulegroupid])) {
@@ -286,9 +286,9 @@ class edit_penalty_form extends moodleform {
             html_writer::span(get_string('reattemptby_label', 'gradepenalty_reattemptmaxscore'), 'me-2'));
 
         // Less than or equal.
-        $elements[] = $mform->createElement('static', '', '', html_writer::span('≤', 'me-2'));
+        $elements[] = $mform->createElement('static', '', '', html_writer::span('>', 'me-2'));
 
-        // Duration value element.
+        // Max score value element.
         $elements[] = ($mform->createElement('text', 'reattemptby',
             get_string('reattemptby_label', 'gradepenalty_reattemptmaxscore'),
             ['optional' => false, 'size' => 3, 'maxlength' => 3]));

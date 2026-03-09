@@ -130,6 +130,7 @@ if (!$edit) {
 
     // Display the penalty table.
     echo $OUTPUT->heading(get_string('existingrule', 'gradepenalty_reattemptmaxscore'), 5);
+    echo get_string('existingrule_help', 'gradepenalty_reattemptmaxscore');
     $penaltytable = new penalty_rule_table('penalty_rule_table', $contextid);
     $penaltytable->define_baseurl($url);
     $penaltytable->out(30, true);

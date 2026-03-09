@@ -25,34 +25,51 @@
 
 $string['addrule'] = 'Add rule';
 $string['deleteallrules'] = 'Delete all rules';
-$string['reattemptmaxscore:manage'] = 'Permission to manage penalty rules';
-$string['reattemptmaxscorerule'] = 'Penalty rules';
-$string['editreattemptmaxscorerule'] = 'Edit penalty rules';
-$string['error_reattemptby_abovevalue'] = 'The reattempt amount must be lesser than the amount for the rule above ({$a}).';
-$string['error_reattemptby_maxvalue'] = 'The reattempt amount cannot be lesser than {$a}.';
-$string['error_reattemptby_minvalue'] = 'The reattempt amount must be lesser than or equal to {$a}.';
-$string['error_penalty_abovevalue'] = 'The penalty must be lesser than the penalty for the rule above ({$a}).';
-$string['error_penalty_maxvalue'] = 'The penalty cannot be lesser than {$a}.';
-$string['error_penalty_minvalue'] = 'The penalty must be lesser than or equal to {$a}.';
+$string['reattemptmaxscore:manage'] = 'Permission to manage reattempt maximum score rules';
+$string['reattemptmaxscorerule'] = 'Maximum score rules';
+$string['editreattemptmaxscorerule'] = 'Edit maximum score rules';
+$string['error_reattemptby_abovevalue'] = 'The reattempt number must be lower than the number of the rule above ({$a}).';
+$string['error_reattemptby_maxvalue'] = 'The reattempt number cannot be lower than {$a}.';
+$string['error_reattemptby_minvalue'] = 'The reattempt number must be lower than or equal to {$a}.';
+$string['error_penalty_abovevalue'] = 'The maximum score must be lower than the maximum score for the rule above ({$a}).';
+$string['error_penalty_maxvalue'] = 'The maximum score cannot be lower than {$a}.';
+$string['error_penalty_minvalue'] = 'The maximum score must be lower than or equal to {$a}.';
 $string['existingrule'] = 'Existing rules';
-$string['finalpenaltyrule'] = 'Final penalty rule';
-$string['finalpenaltyrule_help'] = 'The final penalty rule specifies the penalty that is applied to submissions reattempt longer than for any other penalty rule.';
+$string['existingrule_help'] = '<p>Define rules to control the maximum score for reattempts.
+Each rule applies to a specific reattempt, and the final rule acts as a fallback for any further attempts.</p>
+<p>Example:</p>
+<ul><li>Rule 1 → Reattempt: 1, Maximum score: 60
+<li>Final rule → Maximum score: 50</li></ul>
+<p>Result:</p>
+<ul><li>First reattempt is capped at 60</li>
+<li>Second and subsequent reattempts are capped at 50</li></ul>
+<p>If only one rule is configured, it will apply to all reattempts.</p>';
+$string['finalpenaltyrule'] = 'Final rule';
+$string['finalpenaltyrule_help'] = '<p>The final rule acts as a fallback for any further attempts.</p>
+<p>Example:</p>
+<ul><li>Rule 1 → Reattempt: 1, Maximum score: 60</li>
+<li>Final rule → Maximum score: 50</li></ul>
+<p>Result:</p>
+<ul><li>First reattempt is capped at 60</li>
+<li>Second and subsequent reattempts are capped at 50</li></ul>
+<p>If only one rule is configured, it will apply to all reattempts.</p>';
 $string['insertrule'] = 'Insert below';
-$string['reattemptby'] = 'Reattempts';
-$string['reattemptby_help'] = 'The number after the first submission that the penalty will be applied.';
-$string['reattemptby_label'] = 'Reattempt:';
-$string['reattemptby_lastrow'] = '&ge; {$a}';
-$string['reattemptby_onerow'] = 'All Reattempt maxscores';
+$string['reattemptby'] = 'Reattempt';
+$string['reattemptby_help'] = 'The submission attempt number after the first attempt when the maximum score will apply.';
+$string['reattemptby_label'] = 'Submission reattempt:';
+$string['reattemptby_lastrow'] = '&gt {$a}';
+$string['reattemptby_onerow'] = '&gt; 1';
 $string['reattemptby_row'] = '&gt; {$a}';
-$string['penalty'] = 'Maxscore';
-$string['penalty_help'] = 'The penalty in percent that will be applied for Reattempt maxscores.';
-$string['penalty_label'] = 'Penalty:';
-$string['penaltyrule'] = 'Penalty rules';
-$string['penaltyrule_group'] = 'Penalty rule {no}';
-$string['penaltyrule_inherited'] = 'The penalty rules in this context are inherited from a parent context. Click Edit to override the values.';
+$string['penalty'] = 'Maximum score';
+$string['penalty_help'] = 'The maximum score that will be applied to submission reattempts.';
+$string['penalty_label'] = 'Maximum score:';
+$string['penaltyrule'] = 'Maximum score rules';
+$string['penaltyrule_help'] = 'Apply score limit to an activity submission reattempts. This applies only to a reattempt and not to the first submission made.';
+$string['penaltyrule_group'] = 'Rule {no}';
+$string['penaltyrule_inherited'] = 'The maximum score rules in this context are inherited from a parent context. Click Edit to override the values.';
 $string['penaltyrule_not_inherited'] = 'Click Edit to change or add rules.';
-$string['penaltyrule_overridden'] = 'The penalty rules are overridden. Click Reset to remove overridden rules. This will remove all rules if there is no rule in the parent context.';
-$string['pluginname'] = 'Reattempt maxscore penalties';
-$string['privacy:metadata:gradepenalty_reattemptmaxscore_rule'] = 'Grade penalty due date table';
+$string['penaltyrule_overridden'] = 'The maximum score rules are overridden. Click Reset to remove overridden rules. This will remove all rules if there is no rule in the parent context.';
+$string['pluginname'] = 'Reattempt maximum score';
+$string['privacy:metadata:gradepenalty_reattemptmaxscore_rule'] = 'Maximum score reattempt table';
 $string['privacy:metadata:gradepenalty_reattemptmaxscore_rule:usermodified'] = 'User who modified the rule';
 $string['resetconfirm'] = 'This will remove all rules in this context. Are you sure you want to continue?';
