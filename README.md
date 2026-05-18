@@ -4,6 +4,13 @@
 
 The Reattempt maximum score limit plugin allows course administrators and teachers to apply a configurable maximum grade limit to assignment or quiz activity reattempts in Moodle. This ensures that learners are rewarded for their first attempt while subsequent reattempts are subject to defined grade caps.
 
+For e.g.
+First attempt - no grade limit.
+2nd attempt - Max score they can get is 80/100
+so if they get a score of 85/100 on their 2nd attempt, it is scaled back to 80/100
+if they get 90/100 on a 2nd attempt, it is scaled back to 80/100
+if they get 79/100 on a second attempt - no changes are made to their score - final grade remains at 79/100
+
 Key Features
 
 ✅ Configurable Grade Caps: Set maximum achievable scores for each reattempt number (e.g., 1st, 2nd, 3rd attempt, etc.).
@@ -16,7 +23,7 @@ Key Features
 
 # Installation
 
-This plugin requires a changes to the core Penalty API 
+This plugin requires a changes to the core Penalty API
 apply the patch file in patches/mod_assign.patch and patches/core_grade.patch against your moodle install first.
 
 # Configuration
@@ -65,7 +72,7 @@ Grade penalties: Yes (enable this to apply the 'reattempt maximum score limit' r
 # Compatibility
 
 Moodle Version: 5.0 and above
-Supported Activities: Assignment 
+Supported Activities: Assignment
 
 # Pending
 

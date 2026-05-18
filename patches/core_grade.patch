@@ -1,8 +1,8 @@
-From 197bf3b3c7f66e1c8f21ecab664d60457b4c7b80 Mon Sep 17 00:00:00 2001
+From ad2e1fa9e48eed7aebdb2d7ac16bb376f49962cc Mon Sep 17 00:00:00 2001
 From: Sumaiya Javed <sumaiya.javed@catalyst.net.nz>
 Date: Fri, 24 Oct 2025 13:46:27 +1300
-Subject: [PATCH] core_grade penalty: Add support to enable different types of
- penalty plugins - Add function to return enabled penalty type - Change
+Subject: [PATCH 1/2] core_grade penalty: Add support to enable different types
+ of penalty plugins - Add function to return enabled penalty type - Change
  variables and functions names and description gradepenalty_duedate: Change
  functions and variables names and description
 
@@ -179,5 +179,56 @@ index cd944616..c8ccd975 100644
          $container->aggregate_penalty($deductedgrade);
      }
 -- 
-2.34.1
+2.43.0
+
+
+From 862c584f122254fb0296c3572e496c160697e879 Mon Sep 17 00:00:00 2001
+From: Sumaiya Javed <sumaiya.javed@catalyst.net.nz>
+Date: Thu, 14 May 2026 16:30:38 +1200
+Subject: [PATCH 2/2] core_grade penalty: Add support to enable different types
+ of penalty plugins
+
+---
+ grade/classes/output/penalty_indicator.php |  1 +
+ grade/classes/penalty_manager.php          | 13 ++++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/grade/classes/output/penalty_indicator.php b/grade/classes/output/penalty_indicator.php
+index b9c4d8d8..bf499287 100644
+--- a/grade/classes/output/penalty_indicator.php
++++ b/grade/classes/output/penalty_indicator.php
+@@ -68,6 +68,7 @@ class penalty_indicator implements renderable, templatable {
+     #[\Override]
+     public function export_for_template(renderer_base $output): array {
+         $penalty = format_float($this->grade->deductedmark, $this->decimals);
++
+         $finalgrade = $this->showfinalgrade ? format_float($this->grade->finalgrade , $this->decimals) : null;
+         $grademax = $this->showgrademax ? format_float($this->grade->get_grade_max(), $this->decimals) : null;
+         $icon = $this->penaltyicon ?: ['name' => 'i/risk_xss', 'component' => 'core'];
+diff --git a/grade/classes/penalty_manager.php b/grade/classes/penalty_manager.php
+index 5a4ba4b8..e54684e8 100644
+--- a/grade/classes/penalty_manager.php
++++ b/grade/classes/penalty_manager.php
+@@ -269,7 +269,18 @@ class penalty_manager {
+ 
+         // Show penalty indicator if penalty is greater than 0.
+         if ($grade->is_penalty_applied_to_final_grade()) {
+-            $indicator = new \core_grades\output\penalty_indicator(2, $grade);
++            foreach (core_plugin_manager::instance()->get_plugins_of_type('gradepenalty') as $pluginname => $plugin) {
++                if (\core\plugininfo\gradepenalty::is_plugin_enabled($pluginname)) {
++                    $classname = "\\gradepenalty_{$pluginname}\\output\\penalty_indicator";
++                    if (class_exists($classname)) {
++                        $indicator = new $classname(2, $grade);
++                        break;
++                    }
++                }
++            }
++            if (!isset($indicator)) {
++                $indicator = new \core_grades\output\penalty_indicator(2, $grade);
++            }
+             $renderer = $PAGE->get_renderer('core_grades');
+             return $renderer->render_penalty_indicator($indicator);
+         }
+-- 
+2.43.0
 

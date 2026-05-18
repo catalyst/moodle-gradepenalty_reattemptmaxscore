@@ -40,30 +40,23 @@ class penalty_calculator extends \core_grades\penalty_calculator {
         // Calculate the deducted grade based on the max grade.
         $gradeitem = $container->get_grade_item();
         $modinfo = get_fast_modinfo($gradeitem->courseid);
-        $maxscore =
         $cm = $modinfo->instances[$gradeitem->itemmodule][$gradeitem->iteminstance];
-        $maxscore = self::get_penalty_from_rules($cm, $container->get_initial_value(), $container->get_final_value());
-        if ($maxscore == 0) {
+        $maxscorepercentage = self::get_penalty_from_rules($cm, $container->get_initial_value(), $container->get_final_value());
+        if ($maxscorepercentage == 0) {
             $deductedgrade = 0;
         } else {
             $currentgrade = $container->get_grade_before_penalties();
-            // Calculate the difference in percentage between the grade and maxscore.
-            $deductedgrade = ceil((($currentgrade - $maxscore) / $currentgrade) * 100);
-            if ($deductedgrade < 1) {
-                $deductedgrade = 0;
-            } else {
-                // Calculate the discrepency after the deduction.
-                if (($finalgrade = $currentgrade - $deductedgrade) < $maxscore) {
-                    $diff = $maxscore - $finalgrade;
-                    $deductedgrade = $deductedgrade - $diff;
-                }
-            }
+            $grademax = $container->get_max_grade();
+            // Convert the max score percentage cap to actual points.
+            $maxscore = ($maxscorepercentage / 100) * $grademax;
+            // Deduct points so grade is capped at maxscore; zero if already within cap.
+            $deductedgrade = max(0.0, $currentgrade - $maxscore);
         }
         $container->aggregate_penalty($deductedgrade);
     }
 
     /**
-     * Get the penalty percentage from the most appropriate penalty rule based on the submission date and the due date.
+     * Get the penalty percentage from the most appropriate penalty rule based on the initialattempt and current attemptnumber.
      *
      * @param cm_info $cm The course module object.
      * @param int $initialattempt The first attempt number.
@@ -71,9 +64,10 @@ class penalty_calculator extends \core_grades\penalty_calculator {
      * @return float the deducted percentage.
      */
     public static function get_penalty_from_rules(cm_info $cm, int $initialattempt, int $attemptnumber): float {
-        // Get the difference between the submission date and the due date.
+        // Get the difference between the initialattempt and current attemptnumber.
+
         $diff = $attemptnumber - $initialattempt;
-        // Return if the due date is after the submission date.
+        // Return if the first attempt then no penalty.
         if ($diff <= 0) {
             return 0;
         }

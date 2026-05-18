@@ -1,7 +1,7 @@
-From f5908b89ad552616354ae75080e73c96b6d23f25 Mon Sep 17 00:00:00 2001
+From 402aaaaa2552d3a19a0a5c51a1c654a075edf725 Mon Sep 17 00:00:00 2001
 From: Sumaiya Javed <sumaiya.javed@catalyst.net.nz>
 Date: Thu, 23 Oct 2025 10:04:26 +1300
-Subject: [PATCH] mod_assign: Add suport for gradepenalty_reattemptmaxscore
+Subject: [PATCH 1/2] mod_assign: Add suport for gradepenalty_reattemptmaxscore
 
 ---
  mod/assign/classes/penalty/helper.php         | 34 ++++++++++++++++---
@@ -63,7 +63,7 @@ index 3419aacc..1650d42d 100644
              // There is no deduction applied to grade 0.
              $deductedpercentage = 0;
 diff --git a/mod/assign/mod_form.php b/mod/assign/mod_form.php
-index f5b71ef4..3e7522ec 100644
+index 801ba2be..268a9a33 100644
 --- a/mod/assign/mod_form.php
 +++ b/mod/assign/mod_form.php
 @@ -147,6 +147,7 @@ class mod_assign_mod_form extends moodleform_mod {
@@ -74,7 +74,7 @@ index f5b71ef4..3e7522ec 100644
  
          $choice = new core\output\choicelist();
  
-@@ -262,8 +263,16 @@ class mod_assign_mod_form extends moodleform_mod {
+@@ -261,8 +262,16 @@ class mod_assign_mod_form extends moodleform_mod {
              $mform->addHelpButton('gradepenalty', 'gradepenalty', 'mod_assign');
              $mform->setDefault('gradepenalty', 0);
  
@@ -113,5 +113,67 @@ index 774079f9..5dfd5360 100644
              $container->aggregate_penalty($deductedgrade);
          }
 -- 
-2.34.1
+2.43.0
+
+
+From 78cd05edc6d7030459db7bf449bc47882db50ad8 Mon Sep 17 00:00:00 2001
+From: Sumaiya Javed <sumaiya.javed@catalyst.net.nz>
+Date: Thu, 14 May 2026 16:31:19 +1200
+Subject: [PATCH 2/2] mod_assign: Add support for
+ gradepenalty_reattemptmaxscore
+
+---
+ mod/assign/locallib.php | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/mod/assign/locallib.php b/mod/assign/locallib.php
+index a8d3bbc4..bb1cce2b 100644
+--- a/mod/assign/locallib.php
++++ b/mod/assign/locallib.php
+@@ -2085,9 +2085,10 @@ class assign {
+             // Add penalty indicator, icon only.
+             $penaltyindicator = '';
+             if ($deductedmark > 0) {
+-                $gradegrade = new \grade_grade();
+-                $gradegrade->deductedmark = $deductedmark;
+-                $gradegrade->overridden = $userid > 0 ? $this->get_grade_item()->get_grade($userid)->overridden : 0;
++                $gradegrade =  new \grade_grade([
++                                    'userid' => $userid,
++                                    'itemid' => $this->get_grade_item()->get_grade($userid)->itemid
++                                ], true);
+                 $penaltyindicator = \core_grades\penalty_manager::show_penalty_indicator($gradegrade);
+             }
+ 
+@@ -5495,9 +5496,12 @@ class assign {
+                         '',
+                         $cangrade
+                     );
++
+                     // Display the penalty indicator next to the penalized grade, if applicable.
+                     $penaltyindicator = \core_grades\penalty_manager::show_penalty_indicator(
+                         new \grade_grade([
++                            'userid' => $user->id,
++                            'itemid' => $gradebookgrade->items[0]->id,
+                             'deductedmark' => $gradebookgrade->deductedmark ?? 0,
+                             'overridden' => $gradebookgrade->overridden ?? 0,
+                         ], false)
+@@ -7997,11 +8001,11 @@ class assign {
+         }
+ 
+         // Penalty indicator.
+-        $userassigngrade = $gradinginfo->items[0]->grades[$userid];
+-        if (isset($userassigngrade->grade)) {
+-            $gradegrade = new \grade_grade();
+-            $gradegrade->deductedmark = $userassigngrade->deductedmark;
+-            $gradegrade->overridden = $userassigngrade->overridden;
++        if (isset($gradinginfo->items[0]->grades[$userid]->grade)) {
++            $gradegrade =  new \grade_grade([
++                                'userid' => $userid,
++                                'itemid' => $gradinginfo->items[0]->id
++                            ], true);
+             $penaltyindicator = \core_grades\penalty_manager::show_penalty_indicator($gradegrade);
+             $gradestring = $penaltyindicator . $gradestring;
+         }
+-- 
+2.43.0
 

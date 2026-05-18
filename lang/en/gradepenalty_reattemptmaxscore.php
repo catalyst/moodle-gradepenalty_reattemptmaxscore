@@ -73,3 +73,4 @@ $string['pluginname'] = 'Reattempt maximum score';
 $string['privacy:metadata:gradepenalty_reattemptmaxscore_rule'] = 'Maximum score reattempt table';
 $string['privacy:metadata:gradepenalty_reattemptmaxscore_rule:usermodified'] = 'User who modified the rule';
 $string['resetconfirm'] = 'This will remove all rules in this context. Are you sure you want to continue?';
+$string['gradepenalty_indicator_info'] = 'Capped at {$a->maxscore} (-{$a->deductedmark})';
