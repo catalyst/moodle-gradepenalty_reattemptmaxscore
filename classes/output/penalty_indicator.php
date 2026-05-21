@@ -29,22 +29,25 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
 
     #[\Override]
     public function export_for_template(renderer_base $output): array {
-        global $DB;
+        global $DB, $CFG;
         $context = parent::export_for_template($output);
         $gradeitem = $DB->get_record('grade_items', ['id' => $this->grade->itemid]);
+
         $cm = get_coursemodule_from_instance($gradeitem->itemmodule, $gradeitem->iteminstance);
         $contextid = \context_module::instance($cm->id)->id;
         $itemmodule = $gradeitem->itemmodule;
-        $modulegrades = $gradeitem->itemmodule ."_" . 'grades';
+        $modulegrades = $CFG->prefix.$gradeitem->itemmodule ."_" . 'grades';
         $modulename = $itemmodule;
         if ($gradeitem->itemmodule == 'assign') {
             $modulename = 'assignment';
         }
-        $attemptnumber = $DB->get_field($modulegrades, 'attemptnumber', [
-            'userid' => $this->grade->userid,
+        $sql = "SELECT max(attemptnumber) AS attemptnumber
+        FROM $modulegrades  WHERE $modulename = ? AND userid = ?";
+        $record = $DB->get_record_sql($sql, [
             $modulename => $gradeitem->iteminstance,
-            'timemodified' => $this->grade->timemodified,
+            'userid' => $this->grade->userid
         ]);
+        $attemptnumber = $record->attemptnumber;
         $sql = "SELECT penalty FROM {gradepenalty_reattemptmaxscore_rule}
             WHERE reattemptby >= ? AND contextid = ? ORDER BY reattemptby LIMIT 1";
         $maxscore = $DB->get_field_sql($sql, [$attemptnumber + 1, $contextid]);
@@ -52,6 +55,7 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
             $systemcontext = \context_system::instance();
             $maxscore = $DB->get_field_sql($sql, [$attemptnumber + 1, $systemcontext->id]);
         }
+
         $deductedmark = format_float($this->grade->deductedmark, $this->decimals);
         $finalgrade = $this->showfinalgrade ? format_float($this->grade->finalgrade , $this->decimals) : null;
         $grademax = $this->showgrademax ? format_float($this->grade->get_grade_max(), $this->decimals) : null;
@@ -72,3 +76,4 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
         return $context;
     }
 }
+
