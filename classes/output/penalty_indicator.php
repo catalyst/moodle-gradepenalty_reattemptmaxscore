@@ -32,7 +32,7 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
         global $DB, $CFG;
         $context = parent::export_for_template($output);
         $gradeitem = $DB->get_record('grade_items', ['id' => $this->grade->itemid]);
-
+        // Get context to find the info accordingly.
         $cm = get_coursemodule_from_instance($gradeitem->itemmodule, $gradeitem->iteminstance);
         $contextid = \context_module::instance($cm->id)->id;
         $itemmodule = $gradeitem->itemmodule;
@@ -48,14 +48,15 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
             'userid' => $this->grade->userid
         ]);
         $attemptnumber = $record->attemptnumber;
-        $sql = "SELECT penalty FROM {gradepenalty_reattemptmaxscore_rule}
-            WHERE reattemptby >= ? AND contextid = ? ORDER BY reattemptby LIMIT 1";
-        $maxscore = $DB->get_field_sql($sql, [$attemptnumber + 1, $contextid]);
+        // Find maxscore per activity.
+        $sql = "SELECT MIN(penalty) FROM {gradepenalty_reattemptmaxscore_rule}
+            WHERE reattemptby <= ? AND contextid = ?";
+        $maxscore = $DB->get_field_sql($sql, [$attemptnumber, $contextid]);
+        // If not found then fall back to system level.
         if (empty($maxscore)) {
             $systemcontext = \context_system::instance();
-            $maxscore = $DB->get_field_sql($sql, [$attemptnumber + 1, $systemcontext->id]);
+            $maxscore = $DB->get_field_sql($sql, [$attemptnumber, $systemcontext->id]);
         }
-
         $deductedmark = format_float($this->grade->deductedmark, $this->decimals);
         $finalgrade = $this->showfinalgrade ? format_float($this->grade->finalgrade , $this->decimals) : null;
         $grademax = $this->showgrademax ? format_float($this->grade->get_grade_max(), $this->decimals) : null;
@@ -76,4 +77,3 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
         return $context;
     }
 }
-

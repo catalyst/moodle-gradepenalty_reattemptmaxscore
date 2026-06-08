@@ -146,17 +146,17 @@ class edit_penalty_form extends moodleform {
                 if ($reattemptbylowerbound == constants::REATTEMPTBY_MIN - 1) {
                     // Minimum value of reattempt field.
                     $errormessage = get_string('error_reattemptby_minvalue', 'gradepenalty_reattemptmaxscore',
-                        format_time(constants::REATTEMPTBY_MIN));
+                        constants::REATTEMPTBY_MIN);
                 } else {
                     // Must be greater than the previous reattempt value.
                     $errormessage = get_string('error_reattemptby_abovevalue', 'gradepenalty_reattemptmaxscore',
-                        format_time($reattemptbylowerbound));
+                        $reattemptbylowerbound);
                 }
                 $errors[$rulegroupid] = $errormessage;
             } else if ($reattemptby >= $reattemptbyupperbound) {
                 // Validate max value of reattempt.
                 $errors[$rulegroupid] = get_string('error_reattemptby_maxvalue', 'gradepenalty_reattemptmaxscore',
-                    format_time(constants::REATTEMPTBY_MAX));
+                    constants::REATTEMPTBY_MAX);
             } else {
                 $reattemptbylowerbound = $reattemptby;
             }
@@ -251,7 +251,7 @@ class edit_penalty_form extends moodleform {
         $finalrule->set('sortorder', $numofrulesinrepeater);
         if (!empty($reattemptby)) {
             // We can set to any date/time that greater than the last rule in the repeater.
-            $finalrule->set('reattemptby', end($reattemptby) + DAYSECS);
+            $finalrule->set('reattemptby', end($reattemptby) + 1);
         } else {
             $finalrule->set('reattemptby', constants::REATTEMPTBY_MIN);
         }
