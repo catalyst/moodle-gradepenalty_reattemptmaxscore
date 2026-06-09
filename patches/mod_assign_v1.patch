@@ -88,22 +88,3 @@ index f5b71ef4..3e7522ec 100644
  
              // Hide if the grade type is not set to point.
              $mform->hideIf('gradepenalty', 'grade[modgrade_type]', 'neq', 'point');
-diff --git a/mod/assign/tests/fixtures/fakeplugins/fake_deduction/classes/penalty_calculator.php b/mod/assign/tests/fixtures/fakeplugins/fake_deduction/classes/penalty_calculator.php
-index 774079f9..5dfd5360 100644
---- a/mod/assign/tests/fixtures/fakeplugins/fake_deduction/classes/penalty_calculator.php
-+++ b/mod/assign/tests/fixtures/fakeplugins/fake_deduction/classes/penalty_calculator.php
-@@ -34,11 +34,11 @@ class penalty_calculator extends \core_grades\penalty_calculator {
-     public static function calculate_penalty(penalty_container $container): void {
- 
-         // Dates.
--        debugging('Submission date: ' . $container->get_submission_date());
--        debugging('Due date: ' . $container->get_due_date());
-+        debugging('Submission date: ' . $container->get_initial_value());
-+        debugging('Due date: ' . $container->get_final_value());
- 
-         // Calculate the deducted grade based on the max grade.
--        if ($container->get_submission_date() > $container->get_due_date()) {
-+        if ($container->get_initial_value() > $container->get_final_value()) {
-             $deductedgrade = $container->get_max_grade() * 10 / 100;
-             $container->aggregate_penalty($deductedgrade);
-         }
