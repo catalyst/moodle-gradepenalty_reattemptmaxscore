@@ -29,11 +29,18 @@ class penalty_indicator extends \core_grades\output\penalty_indicator {
 
     #[\Override]
     public function export_for_template(renderer_base $output): array {
-        global $DB, $CFG;
-        $context = parent::export_for_template($output);
-        $gradeitem = $DB->get_record('grade_items', ['id' => $this->grade->itemid]);
-        // Get context to find the info accordingly.
-        $cm = get_coursemodule_from_instance($gradeitem->itemmodule, $gradeitem->iteminstance);
+        global $PAGE, $DB, $CFG;
+        $context = $PAGE->context;
+        if (isset($this->grade->itemid)) {
+            $gradeitem = $DB->get_record('grade_items', ['id' => $this->grade->itemid]);
+            $cm = get_coursemodule_from_instance($gradeitem->itemmodule, $gradeitem->iteminstance);
+        } else if ($context->contextlevel == CONTEXT_MODULE) {
+            $cmid = optional_param('id', '', PARAM_INT);
+            $cm = get_coursemodule_from_id('', $cmid);
+            $gradeitem = $DB->get_record('grade_items', ['courseid' => $cm->course, 'iteminstance' => $cm->instance]);
+        } else {
+            return [];
+        }
         $contextid = \context_module::instance($cm->id)->id;
         $itemmodule = $gradeitem->itemmodule;
         $modulegrades = $CFG->prefix.$gradeitem->itemmodule ."_" . 'grades';

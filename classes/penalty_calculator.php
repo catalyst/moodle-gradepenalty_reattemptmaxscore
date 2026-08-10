@@ -41,7 +41,7 @@ class penalty_calculator extends \core_grades\penalty_calculator {
         $gradeitem = $container->get_grade_item();
         $modinfo = get_fast_modinfo($gradeitem->courseid);
         $cm = $modinfo->instances[$gradeitem->itemmodule][$gradeitem->iteminstance];
-        $maxscorepercentage = self::get_penalty_from_rules($cm, $container->get_initial_value(), $container->get_final_value());
+        $maxscorepercentage = self::get_penalty_from_rules($cm, $container->get_submission_date(), $container->get_due_date());
         if ($maxscorepercentage == 0) {
             $deductedgrade = 0;
         } else {
