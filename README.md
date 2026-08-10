@@ -23,8 +23,11 @@ Key Features
 
 # Installation
 
-This plugin requires a changes to the core Penalty API
-apply the patch file in patches/mod_assign.patch and patches/core_grade.patch against your moodle install first.
+Install the plugin the same as any standard Moodle plugin, either via the Moodle plugin directory, or you can use git to clone it into your source:
+
+Then run the Moodle upgrade
+
+This plugin requires a changes to the core Penalty API. Apply the requried core changes from MDL-88777.
 
 # Configuration
 
